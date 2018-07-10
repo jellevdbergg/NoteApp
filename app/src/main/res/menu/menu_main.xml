@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--ADD new note-->
     <!--<item-->
@@ -16,8 +17,16 @@
         android:enabled="true"
         android:title="delete"
         android:id="@+id/action_note_delete"
-        android:icon="@android:drawable/ic_menu_delete"
+        android:icon="@drawable/delete_white"
         android:orderInCategory="0"
+        app:showAsAction="always"/>
+
+    <item
+        android:enabled="true"
+        android:title="color"
+        android:id="@+id/action_color_change"
+        android:icon="@drawable/palette_white"
+        android:orderInCategory="1"
         app:showAsAction="always"/>
 
 </menu>

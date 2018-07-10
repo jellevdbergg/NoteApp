@@ -1,6 +1,7 @@
 package com.notes.jelle.notesapp;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -16,6 +17,7 @@ public class Note implements Serializable {
     private String mTitle;
     private String mContent;
     private int noteId;
+    private int backGroundColor;
 
     public Note() {
     }
@@ -30,6 +32,9 @@ public class Note implements Serializable {
         return mDateTime;
     }
 
+
+    public int getBackGroundColor() { return backGroundColor; }
+
     public int getId() {
         return noteId;
     }
@@ -37,6 +42,8 @@ public class Note implements Serializable {
     public void setId(int id) {
         this.noteId = id;
     }
+
+    public void setBackGroundColor (int color) { this.backGroundColor = color;}
 
     public void setDateTime(long mDateTime) {
         this.mDateTime = mDateTime;

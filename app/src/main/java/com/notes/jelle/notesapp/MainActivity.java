@@ -1,9 +1,13 @@
 package com.notes.jelle.notesapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -14,12 +18,17 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.xdty.preference.colorpicker.ColorPickerDialog;
+import org.xdty.preference.colorpicker.ColorPickerSwatch;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private ListView mListView;
     NoteAdapter na;
+
+    private int mSelectedColor;
     private final ArrayList<Note> noteList = new ArrayList<Note>();
 
     @Override
@@ -33,9 +42,58 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void inflateColorDialog (ActionMode mode) {
+        final ActionMode mode_final = mode;
+        mSelectedColor = ContextCompat.getColor(this, R.color.white);
+
+        int[] mColors = getResources().getIntArray(R.array.default_rainbow);
+
+        ColorPickerDialog dialog = ColorPickerDialog.newInstance(R.string.color_picker_default_title,
+                mColors,
+                0,
+                5, // Number of columns
+                ColorPickerDialog.SIZE_SMALL,
+                true // True or False to enable or disable the serpentine effect
+                //0, // stroke width
+                //Color.BLACK // stroke color
+        );
+
+        dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
+
+            @Override
+            public void onColorSelected(int color) {
+                mSelectedColor = color;
+                Log.i("ok", "test this"+ mSelectedColor);
+                SparseBooleanArray selected = na.getSelectedIds();
+                MyDatabaseHelper db = new MyDatabaseHelper(getApplicationContext());
+                Log.i("ok", "selected"+ selected);
+                for (int i = (selected.size() - 1); i >= 0; i--) {
+                    if (selected.valueAt(i)) {
+                        Note selectedListItem = na.getItem(selected.keyAt(i));
+                        // Remove selected items using ids from the adapter
+                        selectedListItem.setBackGroundColor(mSelectedColor);
+                        db.changeNoteColor(selectedListItem);
+                    }
+                }
+                na.notifyDataSetChanged();
+                mode_final.finish();
+            }
+        });
+
+        dialog.show(getFragmentManager(), "color_dialog_test");
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 //        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        MenuItem menuItemColor;
+//        MenuItem menuItemDelete;
+//
+//        menuItemColor = menu.findItem(R.id.action_color_change);
+//        menuItemDelete = menu.findItem(R.id.action_note_delete);
+//
+//        menuItemColor.setEnabled(false);
+//        menuItemDelete.setEnabled(false);
         return true;
     }
 
@@ -121,10 +179,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                // call getSelectedIds method from customListViewAdapter
+                SparseBooleanArray selected = na.getSelectedIds();
                 switch (item.getItemId()) {
                     case R.id.action_note_delete:
-                        // call getSelectedIds method from customListViewAdapter
-                        SparseBooleanArray selected = na.getSelectedIds();
+//                        showAlertDialog();
                         // Captures all selected ids with a loop
                         MyDatabaseHelper db = new MyDatabaseHelper(getApplicationContext());
                         for (int i = (selected.size() - 1); i >= 0; i--) {
@@ -139,6 +198,13 @@ public class MainActivity extends AppCompatActivity {
 
                         Toast.makeText(getApplicationContext(),"Notes succesfully deleted ", Toast.LENGTH_LONG).show();
                         mode.finish();
+                        return true;
+
+                    case R.id.action_color_change:
+                        // call getSelectedIds method from customListViewAdapter
+                        Toast.makeText(getApplicationContext(),"Pick a color ", Toast.LENGTH_LONG).show();
+                        inflateColorDialog(mode);
+//                        mode.finish();
                         return true;
                     default:
                         return false;

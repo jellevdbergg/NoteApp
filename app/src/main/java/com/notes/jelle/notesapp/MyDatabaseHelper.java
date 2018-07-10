@@ -19,7 +19,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "SQLite";
 
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Database Name
     private static final String DATABASE_NAME = "Note_Manager";
@@ -31,6 +31,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_NOTE_TITLE ="Note_Title";
     private static final String COLUMN_NOTE_CONTENT = "Note_Content";
     private static final String COLUMN_NOTE_DATE = "Note_DATE";
+    private static final String COLUMN_NOTE_COLOR = "Note_COLOR";
 
     public MyDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -45,7 +46,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_NOTE_ID + " INTEGER PRIMARY KEY,"
                 + COLUMN_NOTE_TITLE + " TEXT,"
                 + COLUMN_NOTE_CONTENT + " TEXT,"
-                + COLUMN_NOTE_DATE + " LONG"+ ")";
+                + COLUMN_NOTE_DATE + " LONG,"
+                + COLUMN_NOTE_COLOR + " INTEGER"+ ")";
         // Execute Script.
         db.execSQL(script);
     }
@@ -56,6 +58,9 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
         Log.i(TAG, "MyDatabaseHelper.onUpgrade ... ");
         // Drop older table if existed
+//        if (newVersion > oldVersion) {
+//            db.execSQL("ALTER TABLE " + TABLE_NOTE + " ADD COLUMN "+ COLUMN_NOTE_COLOR + "INTEGER DEFAULT 23666666");
+//        }
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTE);
 
         // Create tables again
@@ -100,7 +105,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_NOTE, new String[] { COLUMN_NOTE_ID,
-                        COLUMN_NOTE_TITLE, COLUMN_NOTE_CONTENT }, COLUMN_NOTE_ID + "=?",
+                        COLUMN_NOTE_TITLE, COLUMN_NOTE_CONTENT, COLUMN_NOTE_COLOR }, COLUMN_NOTE_ID + "=?",
                 new String[] { String.valueOf(id) }, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
@@ -130,6 +135,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 note.setTitle(cursor.getString(1));
                 note.setContent(cursor.getString(2));
                 note.setDateTime(cursor.getLong(3));
+                note.setBackGroundColor(cursor.getInt(4));
                 // Adding note to list
                 noteList.add(note);
             } while (cursor.moveToNext());
@@ -176,6 +182,21 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NOTE, COLUMN_NOTE_ID + " = ?",
                 new String[] { String.valueOf(note.getId()) });
+        db.close();
+    }
+
+    public void changeNoteColor (Note note) {
+        Log.i(TAG, "MyDatabaseHelper.updateNote ... " + note.getTitle() );
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_NOTE_COLOR, note.getBackGroundColor());
+
+        // updating row
+        db.update(TABLE_NOTE, values, COLUMN_NOTE_ID + " = ?",
+                new String[]{String.valueOf(note.getId())});
+
         db.close();
     }
 }

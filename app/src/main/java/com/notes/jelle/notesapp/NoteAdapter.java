@@ -4,6 +4,7 @@ package com.notes.jelle.notesapp;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,7 @@ public class NoteAdapter extends ArrayAdapter<Note> {
             TextView title = (TextView) convertView.findViewById(R.id.list_note_title);
             TextView content = (TextView) convertView.findViewById(R.id.list_note_content);
             TextView date = (TextView) convertView.findViewById(R.id.list_note_date);
+            convertView.setBackgroundColor(note.getBackGroundColor());
 
             title.setText(note.getTitle());
             date.setText(note.getDateTimeFormatted(getContext()));
